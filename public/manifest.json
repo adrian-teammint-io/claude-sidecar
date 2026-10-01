@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "Claude Sidecar",
+  "version": "0.0.0",
+  "description": "Prompt library drawer for claude.ai, backed by a local folder of .md files.",
+  "permissions": [
+    "storage"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "options_page": "options.html",
+  "content_scripts": [
+    {
+      "matches": [
+        "https://claude.ai/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}
