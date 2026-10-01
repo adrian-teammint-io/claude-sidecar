@@ -13,7 +13,7 @@ const prompts = [
  {id:'Writing/Slack reply.md',folder:'Writing',title:'Slack reply',tags:[],body:'Draft a friendly, concise Slack reply to: {{message}}'},
  {id:'Daily standup.md',folder:'',title:'Daily standup',tags:['work'],body:'Summarize yesterday, today, blockers from these notes.'},
 ];
-window.chrome = { runtime: { sendMessage: async (r) => ({ok:true,data: r.type==='status'?{state: MODE==='empty'?'none':'granted',name:'prompt-libraries'}: r.type==='list'?prompts:null}) },
+window.chrome = { runtime: { onMessage: { addListener(){} }, sendMessage: async (r) => ({ok:true,data: r.type==='status'?{state: MODE==='empty'?'none':'granted',name:'prompt-libraries'}: r.type==='list'?prompts:null}) },
  storage: { local: { get: async()=>({settings: MODE==='light'?{theme:'paper',mode:'light'}:undefined}), set: async()=>{} }, onChanged: { addListener(){}, removeListener(){} } } };
 setTimeout(()=>{ const s=document.querySelector('claude-sidecar').shadowRoot; s.querySelector('.launcher').click();
   setTimeout(()=>{ if(MODE==='settings') s.querySelectorAll('.icon-btn')[1].click();

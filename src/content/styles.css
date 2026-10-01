@@ -1,33 +1,5 @@
-/* Theme colors arrive as inline CSS vars on .root (see themes.ts). Everything else derives from them. */
-.root {
-  --line: color-mix(in oklab, var(--text) 10%, transparent);
-  --line-strong: color-mix(in oklab, var(--text) 18%, transparent);
-  --hover: color-mix(in oklab, var(--text) 5%, transparent);
-  --accent-soft: color-mix(in oklab, var(--accent) 16%, transparent);
-  --shadow-tint: color-mix(in oklab, var(--bg) 60%, #000);
-  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
-  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
-  --sans: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
-  --mono: 'JetBrains Mono Variable', ui-monospace, 'SF Mono', monospace;
-  font: 400 13px/1.45 var(--sans);
-  color: var(--text);
-  -webkit-font-smoothing: antialiased;
-  letter-spacing: -0.005em;
-}
-*, *::before, *::after { box-sizing: border-box; }
-button, input, textarea { font: inherit; color: inherit; letter-spacing: inherit; }
-button { cursor: pointer; background: none; border: 0; padding: 0; }
-button:disabled { cursor: not-allowed; opacity: 0.45; }
-:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-h1, h2 { margin: 0; text-wrap: balance; }
-p { margin: 0; text-wrap: pretty; }
-kbd {
-  font: 500 10.5px/1 var(--mono); padding: 3px 5px; border-radius: 5px;
-  border: 1px solid var(--line-strong); border-bottom-width: 2px; color: var(--muted);
-}
-code { font: 12px var(--mono); padding: 1px 5px; border-radius: 4px; background: var(--raised); margin-right: 4px; }
-.muted { color: var(--muted); }
-.pad { padding: 24px 16px; text-align: center; }
+@import '../ui.css';
+
 
 /* Launcher: a tab hugging the right edge */
 .launcher {
@@ -64,12 +36,6 @@ code { font: 12px var(--mono); padding: 1px 5px; border-radius: 4px; background:
 .head { display: flex; align-items: center; gap: 4px; padding: 12px 12px 10px 14px; }
 .head h1 { flex: 1; font-size: 14px; font-weight: 600; letter-spacing: -0.01em; margin-left: 6px; }
 .mark { color: var(--accent); display: grid; place-items: center; width: 32px; height: 32px; }
-.icon-btn {
-  width: 32px; height: 32px; display: grid; place-items: center; border-radius: 8px; color: var(--muted);
-  transition: background-color 150ms ease, color 150ms ease, transform 160ms var(--ease-out);
-}
-@media (hover: hover) and (pointer: fine) { .icon-btn:hover { background: var(--hover); color: var(--text); } }
-.icon-btn:active { transform: scale(0.94); }
 
 .body { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow-y: auto; overscroll-behavior: contain; }
 
@@ -143,30 +109,13 @@ code { font: 12px var(--mono); padding: 1px 5px; border-radius: 4px; background:
 .form textarea { resize: vertical; font: 12.5px/1.55 var(--mono); }
 .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .row > div { display: flex; flex-direction: column; gap: 6px; }
-.hint { font-size: 11.5px; margin-top: 2px; }
-.err { color: #f87171; font-size: 12px; }
-.light .err { color: #b91c1c; }
 .vars-title { font-weight: 600; font-size: 15px; margin-top: 4px; }
 .preview {
   margin: 0; padding: 10px 12px; border-radius: 9px; background: var(--surface); border: 1px dashed var(--line-strong);
   font: 12px/1.55 var(--mono); white-space: pre-wrap; word-break: break-word; max-height: 220px; overflow: auto; color: var(--muted);
 }
 .actions { display: flex; gap: 8px; margin-top: 14px; align-items: center; }
-.spacer { flex: 1; }
 
-.btn {
-  height: 34px; padding: 0 14px; border-radius: 9px; font-weight: 550; display: inline-flex; align-items: center; gap: 8px;
-  transition: background-color 150ms ease, transform 160ms var(--ease-out), border-color 150ms ease;
-}
-.btn:active:not(:disabled) { transform: scale(0.97); }
-.btn.primary {
-  background: var(--accent); color: var(--on-accent);
-  box-shadow: inset 0 1px 0 color-mix(in oklab, #fff 25%, transparent), 0 1px 2px var(--shadow-tint);
-}
-.btn.primary kbd { color: inherit; border-color: color-mix(in oklab, var(--on-accent) 30%, transparent); opacity: 0.7; }
-.btn.ghost { border: 1px solid var(--line-strong); }
-@media (hover: hover) and (pointer: fine) { .btn.ghost:hover { background: var(--hover); } }
-.btn.danger { background: #dc2626; color: #fff; }
 
 /* Empty state */
 .empty { margin: auto; padding: 32px 28px; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; }
@@ -187,20 +136,6 @@ code { font: 12px var(--mono); padding: 1px 5px; border-radius: 4px; background:
 .folder-card > div { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 .folder-card strong { font-weight: 560; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .folder-card span { font-size: 11.5px; }
-.segmented { display: grid; grid-template-columns: repeat(3, 1fr); padding: 3px; border-radius: 10px; background: var(--surface); border: 1px solid var(--line); margin-bottom: 12px; }
-.segmented button { height: 30px; border-radius: 7px; font-weight: 500; color: var(--muted); transition: background-color 150ms ease, color 150ms ease; }
-.segmented button[aria-checked='true'] { background: var(--raised); color: var(--text); box-shadow: 0 1px 2px var(--shadow-tint); }
-.themes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-.theme {
-  display: flex; flex-direction: column; gap: 6px; padding: 6px 6px 8px; border-radius: 12px; font-size: 11.5px; font-weight: 500;
-  border: 1px solid var(--line); text-align: left; transition: border-color 150ms ease, transform 160ms var(--ease-out);
-}
-.theme:active { transform: scale(0.97); }
-.theme[aria-checked='true'] { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
-.swatch { height: 40px; border-radius: 7px; display: flex; align-items: flex-end; gap: 4px; padding: 6px; border: 1px solid var(--line); }
-.swatch span { height: 10px; border-radius: 3px; }
-.swatch span:first-child { flex: 1; }
-.swatch span:last-child { width: 14px; }
 
 .toast {
   position: absolute; left: 50%; bottom: 52px; transform: translateX(-50%); padding: 8px 14px; border-radius: 999px;
@@ -216,3 +151,4 @@ code { font: 12px var(--mono); padding: 1px 5px; border-radius: 4px; background:
   .item { animation: none; }
   .toast { animation: none; }
 }
+.field { display: flex; flex-direction: column; gap: 6px; }

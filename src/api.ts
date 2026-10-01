@@ -9,6 +9,7 @@ export type Req =
   | { type: 'delete'; id: string }
   | { type: 'import'; prompts: Prompt[] }
   | { type: 'openOptions' }
+  | { type: 'refreshUsage' }
 
 type Res<T> = { ok: true; data: T } | { ok: false; error: string }
 

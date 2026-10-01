@@ -20,7 +20,7 @@ export default defineConfig({
     outDir: 'dist',
     emptyOutDir: false,
     rollupOptions: {
-      input: { options: 'options.html', background: 'src/background.ts' },
+      input: { options: 'options.html', popup: 'popup.html', background: 'src/background.ts' },
       output: { entryFileNames: '[name].js', chunkFileNames: 'chunks/[name].js', assetFileNames: 'assets/[name][extname]' },
     },
   },

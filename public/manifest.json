@@ -4,8 +4,17 @@
   "version": "0.0.0",
   "description": "Prompt library drawer for claude.ai, backed by a local folder of .md files.",
   "permissions": [
-    "storage"
+    "storage",
+    "alarms",
+    "notifications"
   ],
+  "host_permissions": [
+    "https://claude.ai/*"
+  ],
+  "action": {
+    "default_title": "Claude usage",
+    "default_popup": "popup.html"
+  },
   "background": {
     "service_worker": "background.js",
     "type": "module"
@@ -20,6 +29,16 @@
         "content.js"
       ],
       "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://claude.ai/*"
+      ],
+      "js": [
+        "focus-guard.js"
+      ],
+      "run_at": "document_start",
+      "world": "MAIN"
     }
   ]
 }

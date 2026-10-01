@@ -31,13 +31,14 @@ export function Editor({ prompt, folders, onDone }: { prompt?: Prompt; folders: 
       onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); save() } }}>
       <label htmlFor="sc-title">Title</label>
       <input id="sc-title" value={title} onChange={e => setTitle(e.target.value)} required autoFocus placeholder="Review a pull request" />
-      <div className="row">
-        <div>
+      {/* New prompts are saved to the root folder; the folder can be changed later via Edit. */}
+      <div className={prompt ? 'row' : undefined}>
+        {prompt && <div>
           <label htmlFor="sc-folder">Folder</label>
           <input id="sc-folder" value={folder} onChange={e => setFolder(e.target.value)} list="sc-folders" placeholder="Unfiled" />
           <datalist id="sc-folders">{folders.map(f => <option key={f} value={f} />)}</datalist>
-        </div>
-        <div>
+        </div>}
+        <div className="field">
           <label htmlFor="sc-tags">Tags</label>
           <input id="sc-tags" value={tags} onChange={e => setTags(e.target.value)} placeholder="code, review" />
         </div>

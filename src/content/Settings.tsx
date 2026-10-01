@@ -1,7 +1,8 @@
 import { useRef } from 'react'
 import { call, type Status } from '../api'
 import type { Prompt } from '../md'
-import { THEMES, type Settings, type Mode } from '../themes'
+import type { Settings } from '../themes'
+import { ThemePicker } from '../shared/controls'
 import { Icon } from './ui'
 
 export function SettingsView({ settings, dark, status, prompts, onChange, onImported, onError }: {
@@ -41,24 +42,8 @@ export function SettingsView({ settings, dark, status, prompts, onChange, onImpo
       </section>
       <section>
         <h2>Appearance</h2>
-        <div className="segmented" role="radiogroup" aria-label="Color mode">
-          {(['system', 'light', 'dark'] as Mode[]).map(m => (
-            <button key={m} role="radio" aria-checked={settings.mode === m} onClick={() => onChange({ mode: m })}>{m[0].toUpperCase() + m.slice(1)}</button>
-          ))}
-        </div>
-        <div className="themes" role="radiogroup" aria-label="Theme">
-          {Object.entries(THEMES).map(([key, t]) => {
-            const [bg, surface, , text, , accent] = t[dark ? 'dark' : 'light']
-            return (
-              <button key={key} role="radio" aria-checked={settings.theme === key} className="theme" onClick={() => onChange({ theme: key })}>
-                <span className="swatch" style={{ background: bg, color: text }}>
-                  <span style={{ background: surface }} /><span style={{ background: accent }} />
-                </span>
-                {t.label}
-              </button>
-            )
-          })}
-        </div>
+        <ThemePicker settings={settings} dark={dark} onChange={onChange} />
+        <p className="hint muted">Usage tracker settings (badge, refresh, alerts) live in the toolbar popup.</p>
       </section>
       <section>
         <h2>Backup</h2>

@@ -8,7 +8,7 @@
     "build": "pnpm typecheck && vite build && vite build -c vite.content.config.ts",
     "package": "pnpm build && N=ClaudeSidecar-v$npm_package_version-$(date +%d.%m) && mkdir -p releases && rm -rf releases/$N releases/$N.zip && cp -R dist releases/$N && cd releases && zip -qr $N.zip $N && rm -rf $N && echo \"Packaged releases/$N.zip\"",
     "typecheck": "tsc --noEmit",
-    "test": "node --experimental-strip-types src/md.test.ts",
+    "test": "node --experimental-strip-types src/md.test.ts && node --experimental-strip-types src/usage-format.test.ts",
     "clean": "rm -rf dist"
   },
   "dependencies": {

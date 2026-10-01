@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { call, type Status } from '../api'
 import { varsOf, type Prompt } from '../md'
 import { DEFAULTS, vars, type Settings } from '../themes'
@@ -39,13 +39,28 @@ export function App() {
     const onMq = () => setSysDark(mq.matches)
     mq.addEventListener('change', onMq)
     // Settings page writes rootName after (re)connecting the folder.
-    const onStore = (c: Record<string, chrome.storage.StorageChange>) => c.rootName && load()
+    // The popup can change theme/mode too; follow it live.
+    const onStore = (c: Record<string, chrome.storage.StorageChange>) => {
+      if (c.rootName) load()
+      if (c.settings?.newValue) setSettings({ ...DEFAULTS, ...(c.settings.newValue as Settings) })
+    }
     chrome.storage.onChanged.addListener(onStore)
     return () => { mq.removeEventListener('change', onMq); chrome.storage.onChanged.removeListener(onStore) }
   }, [])
 
+  const drawer = useRef<HTMLElement>(null)
+
   // Re-read the folder every time the drawer opens, so edits made in Obsidian show up.
-  useEffect(() => { if (open) load() }, [open])
+  useEffect(() => {
+    if (!open) return
+    load()
+    drawer.current?.querySelector<HTMLElement>('input, textarea')?.focus()
+    // Close on any click outside the drawer. Capture phase so page handlers can't swallow it.
+    const host = (drawer.current!.getRootNode() as ShadowRoot).host
+    const onDown = (e: PointerEvent) => { if (!e.composedPath().includes(host)) setOpen(false) }
+    document.addEventListener('pointerdown', onDown, true)
+    return () => document.removeEventListener('pointerdown', onDown, true)
+  }, [open])
 
   function updateSettings(s: Partial<Settings>) {
     const next = { ...settings, ...s }
@@ -84,7 +99,7 @@ export function App() {
       <button className="launcher" data-hidden={open} aria-label="Open prompt library" title="Prompt library" onClick={() => setOpen(true)}>
         <Icon d="library" size={18} />
       </button>
-      <aside className="drawer" data-open={open} inert={!open} aria-label="Prompt library"
+      <aside ref={drawer} className="drawer" data-open={open} inert={!open} aria-label="Prompt library"
         onKeyDown={e => { if (e.key === 'Escape') { e.stopPropagation(); view.kind === 'list' ? setOpen(false) : setView({ kind: 'list' }) } }}>
         <header className="head">
           {view.kind !== 'list' ? <IconBtn icon="back" label="Back" onClick={() => setView({ kind: 'list' })} /> : <span className="mark"><Icon d="library" /></span>}
@@ -93,7 +108,7 @@ export function App() {
           {view.kind !== 'settings' && <IconBtn icon="gear" label="Settings" onClick={() => setView({ kind: 'settings' })} />}
           <IconBtn icon="x" label="Close" onClick={() => setOpen(false)} />
         </header>
-        <div className="body">{open && body}</div>
+        <div className="body">{body}</div>
         {toast && <div className="toast" role="status">{toast}</div>}
       </aside>
     </div>

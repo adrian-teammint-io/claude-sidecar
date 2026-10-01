@@ -1,6 +1,6 @@
 ---
 name: ui-verify
-description: Visually verify the Claude Sidecar drawer by screenshotting it in headless Chrome against a mock claude.ai page with stubbed chrome APIs. Use after UI or style changes, or to reproduce a render bug without loading the extension.
+description: Visually verify the Claude Sidecar drawer (mock claude.ai page) or toolbar popup (stubbed usage data) by screenshotting them in headless Chrome. Use after UI or style changes, or to reproduce a render bug without loading the extension.
 ---
 
 # UI verify
@@ -22,6 +22,16 @@ done
 ```
 
 Then open the PNGs with the Read tool.
+
+## Popup
+
+```bash
+pnpm build && bash .claude/skills/ui-verify/shoot-popup.sh
+```
+
+The script serves a copy of the build output over `localhost:8765`, because the popup's assets use absolute paths and so `file://` won't work. It injects `popup-stub.js`, which provides fake `usageState`, 30 days of activity and settings. It writes PNGs for six states: `dark`, `light`, `high` (86%, red), `err` (warning banner), `month`, and `empty` (skeletons). Change the query strings in the script to try other values.
+
+Shell tip: a PreToolUse hook treats the first line of any heredoc in a Bash command as a commit message and blocks the command. Write helper files with the Write tool and run them as scripts.
 
 - Use `--virtual-time-budget=8000`. Shorter budgets can capture the drawer mid-transition, so it looks faded or half-closed even though the state is correct.
 - For readable stacks, run `pnpm build -- --minify false`. It only affects the content build.

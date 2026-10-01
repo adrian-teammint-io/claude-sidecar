@@ -15,8 +15,15 @@ export const THEMES: Record<string, { label: string; dark: Pal; light: Pal }> = 
 }
 
 export type Mode = 'system' | 'light' | 'dark'
-export type Settings = { theme: string; mode: Mode }
-export const DEFAULTS: Settings = { theme: 'graphite', mode: 'system' }
+export type Badge = 'session' | 'weekly' | 'off'
+export type Settings = {
+  theme: string
+  mode: Mode
+  usageMinutes: number // usage poll interval
+  badge: Badge // which limit the toolbar badge shows
+  alerts: boolean // notify at ALERT_AT thresholds and when a maxed-out session resets
+}
+export const DEFAULTS: Settings = { theme: 'graphite', mode: 'system', usageMinutes: 5, badge: 'session', alerts: true }
 
 export function vars(theme: string, dark: boolean): Record<string, string> {
   const [bg, surface, raised, text, muted, accent, onAccent] = (THEMES[theme] ?? THEMES.graphite)[dark ? 'dark' : 'light']

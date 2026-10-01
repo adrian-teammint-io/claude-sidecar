@@ -1,3 +1,4 @@
+import { refreshUsage } from './usage'
 import { getRoot } from './handle'
 import { parseMd, toMd, pathFor, type Prompt } from './md'
 import type { Req, Status } from './api'
@@ -71,6 +72,8 @@ async function handle(req: Req): Promise<unknown> {
     }
     case 'openOptions':
       return chrome.runtime.openOptionsPage()
+    case 'refreshUsage':
+      return refreshUsage()
   }
 }
 
