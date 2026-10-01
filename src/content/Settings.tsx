@@ -12,7 +12,7 @@ export function SettingsView({ settings, dark, status, prompts, onChange, onImpo
   const file = useRef<HTMLInputElement>(null)
 
   function exportJson() {
-    const data = prompts.map(({ title, folder, tags, body }) => ({ title, folder, tags, body }))
+    const data = prompts.map(({ title, tags, body }) => ({ title, tags, body }))
     const a = document.createElement('a')
     a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }))
     a.download = `sidecar-prompts-${new Date().toISOString().slice(0, 10)}.json`
@@ -25,7 +25,7 @@ export function SettingsView({ settings, dark, status, prompts, onChange, onImpo
       const raw = JSON.parse(await f.text())
       if (!Array.isArray(raw)) throw new Error('Expected a JSON array of prompts')
       const valid = raw.filter(p => p && typeof p.title === 'string' && typeof p.body === 'string')
-        .map(p => ({ id: '', title: p.title, body: p.body, folder: typeof p.folder === 'string' ? p.folder : '', tags: Array.isArray(p.tags) ? p.tags.map(String) : [] }))
+        .map(p => ({ id: '', title: p.title, body: p.body, tags: Array.isArray(p.tags) ? p.tags.map(String) : [] }))
       onImported(await call<number>({ type: 'import', prompts: valid }))
     } catch (e) { onError((e as Error).message) }
   }

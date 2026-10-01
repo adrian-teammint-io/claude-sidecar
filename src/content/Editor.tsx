@@ -2,9 +2,8 @@ import { useState } from 'react'
 import { call } from '../api'
 import { varsOf, fillVars, type Prompt } from '../md'
 
-export function Editor({ prompt, folders, onDone }: { prompt?: Prompt; folders: string[]; onDone: (msg?: string) => void }) {
+export function Editor({ prompt, onDone }: { prompt?: Prompt; onDone: (msg?: string) => void }) {
   const [title, setTitle] = useState(prompt?.title ?? '')
-  const [folder, setFolder] = useState(prompt?.folder ?? '')
   const [tags, setTags] = useState(prompt?.tags.join(', ') ?? '')
   const [body, setBody] = useState(prompt?.body ?? '')
   const [err, setErr] = useState('')
@@ -16,7 +15,7 @@ export function Editor({ prompt, folders, onDone }: { prompt?: Prompt; folders: 
     setBusy(true); setErr('')
     try {
       const tagList = tags.split(',').map(t => t.trim().replace(/^#/, '')).filter(Boolean)
-      await call({ type: 'save', prevId: prompt?.id, prompt: { id: '', title, folder, tags: tagList, body, extra: prompt?.extra } })
+      await call({ type: 'save', prevId: prompt?.id, prompt: { id: '', title, tags: tagList, body, pinned: prompt?.pinned, extra: prompt?.extra } })
       onDone('Saved')
     } catch (e) { setErr((e as Error).message); setBusy(false) }
   }
@@ -31,22 +30,13 @@ export function Editor({ prompt, folders, onDone }: { prompt?: Prompt; folders: 
       onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); save() } }}>
       <label htmlFor="sc-title">Title</label>
       <input id="sc-title" value={title} onChange={e => setTitle(e.target.value)} required autoFocus placeholder="Review a pull request" />
-      {/* New prompts are saved to the root folder; the folder can be changed later via Edit. */}
-      <div className={prompt ? 'row' : undefined}>
-        {prompt && <div>
-          <label htmlFor="sc-folder">Folder</label>
-          <input id="sc-folder" value={folder} onChange={e => setFolder(e.target.value)} list="sc-folders" placeholder="Unfiled" />
-          <datalist id="sc-folders">{folders.map(f => <option key={f} value={f} />)}</datalist>
-        </div>}
-        <div className="field">
-          <label htmlFor="sc-tags">Tags</label>
-          <input id="sc-tags" value={tags} onChange={e => setTags(e.target.value)} placeholder="code, review" />
-        </div>
-      </div>
+      <label htmlFor="sc-tags">Tags</label>
+      <input id="sc-tags" value={tags} onChange={e => setTags(e.target.value)} placeholder="code, review" />
       <label htmlFor="sc-body">Prompt</label>
       <textarea id="sc-body" value={body} onChange={e => setBody(e.target.value)} required rows={12} placeholder={'Review this {{language}} code for bugs:\n\n{{code}}'} />
       <p className="hint muted">
-        {v.length ? <>Variables: {v.map(x => <code key={x}>{x}</code>)}</> : <>Use <code>{'{{name}}'}</code> for values you fill in at insert time.</>}
+        {v.length ? <>Variables: {v.map(x => <code key={x.name}>{x.name}</code>)}</>
+          : <>Use <code>{'{{name}}'}</code>, <code>{'{{name=default}}'}</code> or <code>{'{{name|a|b}}'}</code> for values you fill in at insert time.</>}
       </p>
       {err && <p className="err" role="alert">{err}</p>}
       <div className="actions">
@@ -60,18 +50,22 @@ export function Editor({ prompt, folders, onDone }: { prompt?: Prompt; folders: 
 }
 
 export function VarsForm({ prompt, onInsert, onBack }: { prompt: Prompt; onInsert: (t: string) => void; onBack: () => void }) {
-  const names = varsOf(prompt.body)
-  const [vals, setVals] = useState<Record<string, string>>({})
+  const vs = varsOf(prompt.body)
+  const [vals, setVals] = useState<Record<string, string>>(() => Object.fromEntries(vs.filter(v => v.def).map(v => [v.name, v.def])))
   const preview = fillVars(prompt.body, vals)
   return (
     <form className="form" onSubmit={e => { e.preventDefault(); onInsert(preview) }}
       onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); onInsert(preview) } }}>
       <p className="vars-title">{prompt.title}</p>
-      {names.map((n, i) => (
+      {vs.map(({ name: n, options }, i) => (
         <div key={n}>
           <label htmlFor={`sc-v-${i}`}>{n}</label>
-          <textarea id={`sc-v-${i}`} rows={n.length > 0 && /code|text|content|input/i.test(n) ? 4 : 1} autoFocus={i === 0}
-            value={vals[n] ?? ''} onChange={e => setVals({ ...vals, [n]: e.target.value })} />
+          {options
+            ? <select id={`sc-v-${i}`} autoFocus={i === 0} value={vals[n]} onChange={e => setVals({ ...vals, [n]: e.target.value })}>
+                {options.map(o => <option key={o} value={o}>{o}</option>)}
+              </select>
+            : <textarea id={`sc-v-${i}`} rows={/code|text|content|input/i.test(n) ? 4 : 1} autoFocus={i === 0}
+                value={vals[n] ?? ''} onChange={e => setVals({ ...vals, [n]: e.target.value })} />}
         </div>
       ))}
       <label>Preview</label>

@@ -88,6 +88,9 @@
   position: absolute; top: 6px; right: 6px; width: 32px; height: 32px; display: grid; place-items: center; border-radius: 8px;
   color: var(--muted); background: var(--surface); opacity: 0; transition: opacity 150ms ease, color 150ms ease;
 }
+.item-pin { right: 42px; }
+.item-pin[aria-pressed='true'] { color: var(--accent); }
+.pinned { display: inline-flex; color: var(--accent); }
 .item[data-active='true'] .item-edit, .item-edit:focus-visible { opacity: 1; }
 @media (hover: hover) and (pointer: fine) { .item-edit:hover { color: var(--text); } }
 
@@ -101,11 +104,11 @@
 /* Forms */
 .form { display: flex; flex-direction: column; gap: 6px; padding: 4px 14px 14px; }
 .form label { font-size: 11.5px; font-weight: 500; color: var(--muted); margin-top: 8px; }
-.form input, .form textarea {
+.form input, .form textarea, .form select {
   width: 100%; padding: 9px 11px; border-radius: 9px; background: var(--surface);
   border: 1px solid var(--line); outline: none; transition: border-color 150ms ease;
 }
-.form input:focus, .form textarea:focus { border-color: color-mix(in oklab, var(--accent) 55%, transparent); }
+.form input:focus, .form textarea:focus, .form select:focus { border-color: color-mix(in oklab, var(--accent) 55%, transparent); }
 .form textarea { resize: vertical; font: 12.5px/1.55 var(--mono); }
 .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .row > div { display: flex; flex-direction: column; gap: 6px; }

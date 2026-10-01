@@ -10,22 +10,20 @@ async function root(): Promise<FileSystemDirectoryHandle> {
   return h
 }
 
-async function walk(dir: FileSystemDirectoryHandle, prefix: string, out: Prompt[]) {
+// ponytail: root folder only, subfolders are ignored
+async function list(dir: FileSystemDirectoryHandle) {
+  const out: Prompt[] = []
   for await (const [name, h] of dir.entries()) {
-    if (name.startsWith('.')) continue // .obsidian, .git, .trash
-    const path = prefix + name
-    if (h.kind === 'directory') await walk(h as FileSystemDirectoryHandle, path + '/', out)
-    else if (name.toLowerCase().endsWith('.md')) out.push(parseMd(path, await (await (h as FileSystemFileHandle).getFile()).text()))
+    if (h.kind === 'file' && !name.startsWith('.') && name.toLowerCase().endsWith('.md'))
+      out.push(parseMd(name, await (await (h as FileSystemFileHandle).getFile()).text()))
   }
   return out
 }
 
-async function fileAt(path: string, create: boolean) {
-  const segs = path.split('/')
-  if (segs.some(s => !s || s === '.' || s === '..')) throw new Error(`Bad path: ${path}`)
-  let dir = await root()
-  for (const s of segs.slice(0, -1)) dir = await dir.getDirectoryHandle(s, { create })
-  return { dir, name: segs.at(-1)!, file: await dir.getFileHandle(segs.at(-1)!, { create }) }
+async function fileAt(name: string, create: boolean) {
+  if (!name || name.includes('/') || name === '.' || name === '..') throw new Error(`Bad file name: ${name}`)
+  const dir = await root()
+  return { dir, name, file: await dir.getFileHandle(name, { create }) }
 }
 
 async function exists(path: string) {
@@ -33,7 +31,7 @@ async function exists(path: string) {
 }
 
 async function save(p: Prompt, prevId?: string): Promise<Prompt> {
-  let id = pathFor(p.folder, p.title)
+  let id = pathFor(p.title)
   // macOS volumes are case-insensitive: a case-only rename is the same file, so never delete prevId after writing it.
   // ponytail: case-only renames keep the old filename casing
   const sameFile = prevId?.toLowerCase() === id.toLowerCase()
@@ -59,7 +57,7 @@ async function handle(req: Req): Promise<unknown> {
       return (h ? { state: await h.queryPermission({ mode: 'readwrite' }), name: h.name } : { state: 'none' }) satisfies Status
     }
     case 'list':
-      return (await walk(await root(), '', [])).sort((a, b) => a.id.localeCompare(b.id))
+      return (await list(await root())).sort((a, b) => a.id.localeCompare(b.id))
     case 'save':
       return save(req.prompt, req.prevId)
     case 'delete':
@@ -67,7 +65,7 @@ async function handle(req: Req): Promise<unknown> {
     case 'import': {
       // ponytail: existing files with the same path are skipped, not merged
       let added = 0
-      for (const p of req.prompts) if (!(await exists(pathFor(p.folder ?? '', p.title)))) { await save({ ...p, tags: p.tags ?? [] }); added++ }
+      for (const p of req.prompts) if (!(await exists(pathFor(p.title)))) { await save({ ...p, tags: p.tags ?? [] }); added++ }
       return added
     }
     case 'openOptions':

@@ -13,9 +13,13 @@ export type Req =
 
 type Res<T> = { ok: true; data: T } | { ok: false; error: string }
 
+const RELOADED = 'Extension was reloaded. Refresh this page.'
+
 export async function call<T>(req: Req): Promise<T> {
+  // An orphaned content script (extension reloaded/updated under an open tab) loses chrome.runtime entirely.
+  if (!chrome.runtime?.id) throw new Error(RELOADED)
   const res: Res<T> | undefined = await chrome.runtime.sendMessage(req)
-  if (!res) throw new Error('Extension was reloaded. Refresh this page.')
+  if (!res) throw new Error(RELOADED)
   if (!res.ok) throw new Error(res.error)
   return res.data
 }

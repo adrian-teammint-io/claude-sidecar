@@ -6,6 +6,7 @@ export const ICONS = {
   back: 'M15 18l-6-6 6-6',
   search: 'M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16ZM21 21l-4.3-4.3',
   pen: 'M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z',
+  pin: 'M12 17v5M9 3h6M10 3v6l-4 5h12l-4-5V3',
   folder: 'M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z',
 }
 export const Icon = ({ d, size = 16 }: { d: keyof typeof ICONS; size?: number }) => (

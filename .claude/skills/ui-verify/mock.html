@@ -7,18 +7,25 @@ const log=(m)=>document.body.insertAdjacentHTML("afterbegin","<pre id=e>"+m+"</p
 window.onerror=(m,f,l,c,e)=>log(m+" "+(e&&e.stack)); console.error=(...a)=>log(a.map(String).join(" "));
 const MODE = location.hash.slice(1) || 'list';
 const prompts = [
- {id:'Coding/Review PR.md',folder:'Coding',title:'Review PR',tags:['code','review'],body:'Review this {{language}} diff for bugs, security issues and readability:\n\n{{diff}}'},
- {id:'Coding/Explain error.md',folder:'Coding',title:'Explain error',tags:['debug'],body:'Explain this error and propose the smallest fix.'},
- {id:'Writing/Tighten prose.md',folder:'Writing',title:'Tighten prose',tags:['edit'],body:'Rewrite the following to be 30% shorter without losing meaning. Keep my voice.'},
- {id:'Writing/Slack reply.md',folder:'Writing',title:'Slack reply',tags:[],body:'Draft a friendly, concise Slack reply to: {{message}}'},
- {id:'Daily standup.md',folder:'',title:'Daily standup',tags:['work'],body:'Summarize yesterday, today, blockers from these notes.'},
+ {id:'Review PR.md',title:'Review PR',tags:['code','review'],pinned:true,body:'Review this {{language=TypeScript}} diff ({{depth|quick|thorough}}) for bugs, security issues and readability:\n\n{{diff}}'},
+ {id:'Explain error.md',title:'Explain error',tags:['debug'],body:'Explain this error and propose the smallest fix.'},
+ {id:'Tighten prose.md',title:'Tighten prose',tags:['edit'],body:'Rewrite the following to be 30% shorter without losing meaning. Keep my voice.'},
+ {id:'Slack reply.md',title:'Slack reply',tags:[],body:'Draft a friendly, concise Slack reply to: {{message}}'},
+ {id:'Daily standup.md',title:'Daily standup',tags:['work'],body:'Summarize yesterday, today, blockers from these notes.'},
 ];
-window.chrome = { runtime: { onMessage: { addListener(){} }, sendMessage: async (r) => ({ok:true,data: r.type==='status'?{state: MODE==='empty'?'none':'granted',name:'prompt-libraries'}: r.type==='list'?prompts:null}) },
- storage: { local: { get: async()=>({settings: MODE==='light'?{theme:'paper',mode:'light'}:undefined}), set: async()=>{} }, onChanged: { addListener(){}, removeListener(){} } } };
-setTimeout(()=>{ const s=document.querySelector('claude-sidecar').shadowRoot; s.querySelector('.launcher').click();
+window.chrome = { runtime: { id: 'mock', onMessage: { addListener(){} }, sendMessage: async (r) => ({ok:true,data: r.type==='status'?{state: MODE==='empty'?'none':'granted',name:'prompt-libraries'}: r.type==='list'?prompts:null}) },
+ storage: { local: { get: async()=>({settings: MODE==='light'?{theme:'paper',mode:'light'}:undefined, recentPrompts:{'Daily standup.md':2,'Tighten prose.md':1}}), set: async()=>{} }, onChanged: { addListener(){}, removeListener(){} } } };
+setTimeout(()=>{ const s=document.querySelector('claude-sidecar').shadowRoot;
+  if(MODE==='trigger'){ // type ";;" mid-text, then pick "Explain error": composer should read "fix this: Explain error... please"
+    const pm=document.querySelector('.ProseMirror'); pm.innerHTML='<p>fix this: ;; please</p>'; const t=pm.firstChild.firstChild;
+    const r=document.createRange(); r.setStart(t,12); r.collapse(true); getSelection().removeAllRanges(); getSelection().addRange(r);
+    pm.dispatchEvent(new InputEvent('input',{data:';',bubbles:true}));
+    setTimeout(()=>{ [...s.querySelectorAll('.item-main')].find(b=>b.textContent.startsWith('Explain error')).click(); },300);
+    return; }
+  s.querySelector('.launcher').click();
   setTimeout(()=>{ if(MODE==='settings') s.querySelectorAll('.icon-btn')[1].click();
     if(MODE==='vars') s.querySelector('.item-main').click();
     if(MODE==='insert'){ s.querySelectorAll('.item-main')[1].click(); }
-    if(MODE==='edit') s.querySelector('.item-edit').click(); }, 300);
+    if(MODE==='edit') s.querySelector('.item-edit:not(.item-pin)').click(); }, 300);
 },300);
 </script><script src="content.js"></script></body></html>

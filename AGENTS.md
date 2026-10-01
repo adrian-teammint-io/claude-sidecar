@@ -1,7 +1,7 @@
 # Claude Sidecar
 
 Chrome MV3 extension for claude.ai with three surfaces:
-1. **Drawer**, injected into claude.ai: a prompt library backed by a local folder of `.md` files. Clicking a prompt replaces the composer text (no auto-send).
+1. **Drawer**, injected into claude.ai: a prompt library backed by a local folder of `.md` files. Clicking a prompt replaces the composer text (no auto-send). Typing `;;` in the composer opens the drawer, and the chosen prompt replaces just the `;;` (`TRIGGER` in `insert.ts`).
 2. **Toolbar icon + popup**: Claude plan usage.
    - Icon: session/weekly rings plus a badge you can configure.
    - Popup: 5-hour and weekly ring cards, a weekly-by-model card, and an activity heatmap.
@@ -54,7 +54,7 @@ src/
 
 - There are two Vite builds. `vite.config.ts` builds the options page, popup and worker as ES modules. `vite.content.config.ts` builds the content script, which must be a single IIFE file.
 - Data flows: content and popup → `call(req)` → worker. The worker writes `chrome.storage.local`, and surfaces subscribe via `storage.onChanged`.
-- Storage keys: `settings`, `rootName` (bumped on folder connect), `usageState`, `activity`, `lastSession`, `lastWeekly`, `orgId`.
+- Storage keys: `settings`, `rootName` (bumped on folder connect), `usageState`, `activity`, `lastSession`, `lastWeekly`, `orgId`, `recentPrompts` (prompt id -> last insert time, drives list order).
 - `settings` is written by the drawer and the popup. Everything follows it live through `storage.onChanged`: the drawer re-themes, and the worker reschedules the alarm or repaints the badge.
 - Usage settings (badge, refresh, alerts) live only in the popup. The drawer Settings keeps folder, appearance and backup.
 - Popup layout must stay ≤ 600px tall (Chrome's popup limit). Check with `H=600 bash .claude/skills/ui-verify/shoot-popup.sh`.
@@ -72,10 +72,11 @@ src/
 
 ## Prompt file format
 
-`<root>/<folder...>/<title>.md`.
-- Subfolders become groups.
+`<root>/<title>.md`.
+- Prompts live in the root folder only; subfolders are ignored.
 - Frontmatter `tags:` (inline `[a, b]` or a YAML list) become filters. Other frontmatter lines are kept verbatim.
-- `{{name}}` is a variable filled in at insert time.
+- `{{name}}` is a variable filled in at insert time. `{{name=default}}` pre-fills it; `{{name|a|b}}` is a dropdown whose first option is the default.
+- Frontmatter `pinned: true` lists the prompt first (toggled from the list). Then most recently inserted, then title.
 - Dot-folders are skipped.
 - `md.ts` stays free of DOM and chrome APIs so plain node can test it.
 

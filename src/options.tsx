@@ -51,7 +51,7 @@ function Options() {
     <main className={`root ${dark ? 'dark' : 'light'} page`} style={vars(settings.theme, dark) as React.CSSProperties}>
       <div className="card">
         <h1>Claude Sidecar</h1>
-        <p className="muted">Choose the root folder that holds your prompts. Each <code>.md</code> file is a prompt, each subfolder is a group, and <code>tags:</code> in frontmatter become filters.</p>
+        <p className="muted">Choose the root folder that holds your prompts. Each <code>.md</code> file in it is a prompt, and <code>tags:</code> in frontmatter become filters.</p>
         <div className="folder-card">
           <div>
             <strong>{handle?.name ?? 'No folder connected'}</strong>

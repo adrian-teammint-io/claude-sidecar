@@ -7,13 +7,13 @@ description: Visually verify the Claude Sidecar drawer (mock claude.ai page) or 
 
 `mock.html` (next to this file) loads `content.js` into a fake claude.ai page. The page has a ProseMirror composer, a stubbed `chrome.runtime` / `chrome.storage`, and five sample prompts. It shows errors as `<pre id="e">`.
 
-The URL hash picks the state to render: `list`, `settings`, `vars`, `edit`, `insert` (clicks a prompt, so check that the composer text was replaced), `empty` (no folder connected), `light` (Claude Paper theme in light mode).
+The URL hash picks the state to render: `list`, `settings`, `vars`, `edit`, `insert` (clicks a prompt, so check that the composer text was replaced), `trigger` (types `;;` mid-text and picks a prompt; the composer should read `fix this: Explain error… please`), `empty` (no folder connected), `light` (Claude Paper theme in light mode).
 
 ```bash
 pnpm build
 S=$(mktemp -d); cp dist/content.js .claude/skills/ui-verify/mock.html $S/
 CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
-for m in list settings vars edit insert empty light; do
+for m in list settings vars edit insert trigger empty light; do
   "$CHROME" --headless=new --disable-gpu --hide-scrollbars --window-size=1280,860 --force-dark-mode \
     --allow-file-access-from-files --virtual-time-budget=8000 --screenshot=$S/$m.png "file://$S/mock.html#$m"
 done
