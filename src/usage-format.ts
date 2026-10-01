@@ -7,6 +7,8 @@ export type Usage = { five_hour?: Limit; seven_day?: Limit; seven_day_opus?: Lim
 export type UsageState = { usage?: Usage; at?: number; error?: string }
 
 export const levelColor =(pct: number) => (pct >= 80 ? '#ef4444' : pct >= 50 ? '#f59e0b' : '#22c55e')
+// Badge text on levelColor: white on green/amber is ~2:1 contrast, so those get dark ink.
+export const levelInk = (pct: number) => (pct >= 80 ? '#ffffff' : '#111111')
 
 export function untilText(iso: string | null, now = Date.now()): string {
   if (!iso) return ''

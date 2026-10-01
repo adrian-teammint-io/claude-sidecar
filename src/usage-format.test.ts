@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { untilText, usageTitle, badgeText, levelColor, addActivity, dayKey, crossed, resetAfterMax } from './usage-format.ts'
+import { untilText, usageTitle, badgeText, levelColor, levelInk, addActivity, dayKey, crossed, resetAfterMax } from './usage-format.ts'
 
 const now = Date.parse('2026-10-01T10:00:00Z')
 assert.equal(untilText('2026-10-01T10:45:00Z', now), '45m')
@@ -16,6 +16,7 @@ assert.equal(t.length, 3) // header + 2 limits (null opus skipped)
 assert.equal(badgeText(u), '23%')
 assert.equal(badgeText({}), '')
 assert.deepEqual([levelColor(10), levelColor(50), levelColor(80)], ['#22c55e', '#f59e0b', '#ef4444'])
+assert.deepEqual([levelInk(10), levelInk(50), levelInk(80)], ['#111111', '#111111', '#ffffff'])
 const at = (h: number, m = 0) => new Date(2026, 9, 1, h, m)
 let act = addActivity({}, undefined, 10, at(9)) // first poll: no baseline, nothing recorded
 assert.deepEqual(act, {})

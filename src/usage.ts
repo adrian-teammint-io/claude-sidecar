@@ -1,6 +1,6 @@
 // Toolbar usage tracker: polls claude.ai's internal usage endpoint and paints it on the extension icon.
 // ponytail: undocumented endpoint (/api/organizations/{org}/usage); if claude.ai changes it, only fetchUsage needs updating.
-import { usageTitle, badgeText, badgePct, levelColor, untilText, addActivity, crossed, resetAfterMax, type Usage, type Activity, type UsageState } from './usage-format'
+import { usageTitle, badgeText, badgePct, levelColor, levelInk, untilText, addActivity, crossed, resetAfterMax, type Usage, type Activity, type UsageState } from './usage-format'
 import { DEFAULTS, type Settings } from './themes'
 
 const BASE = 'https://claude.ai'
@@ -61,12 +61,13 @@ const getSettings = async (): Promise<Settings> => ({ ...DEFAULTS, ...((await ch
 async function paint(u: Usage, settings: Settings) {
   const s = u.five_hour?.utilization ?? 0
   const w = u.seven_day?.utilization ?? 0
+  const pct = badgePct(u, settings.badge) ?? 0
   const imageData = Object.fromEntries([16, 32].map(size => { const { c } = drawRings(size, s, w); return [size, c.getImageData(0, 0, size, size)] }))
   await Promise.all([
     chrome.action.setIcon({ imageData }),
     chrome.action.setBadgeText({ text: badgeText(u, settings.badge) }),
-    chrome.action.setBadgeBackgroundColor({ color: levelColor(badgePct(u, settings.badge) ?? 0) }),
-    chrome.action.setBadgeTextColor({ color: '#ffffff' }),
+    chrome.action.setBadgeBackgroundColor({ color: levelColor(pct) }),
+    chrome.action.setBadgeTextColor({ color: levelInk(pct) }),
     chrome.action.setTitle({ title: usageTitle(u) }),
   ])
 }
@@ -120,6 +121,7 @@ async function doRefresh() {
       chrome.storage.local.set({ usageState: { ...(usageState as UsageState | undefined), error } }),
       chrome.action.setBadgeText({ text: '!' }),
       chrome.action.setBadgeBackgroundColor({ color: '#6b7280' }),
+      chrome.action.setBadgeTextColor({ color: '#ffffff' }),
       chrome.action.setTitle({ title: `Claude usage unavailable: ${error}` }),
     ])
   }
