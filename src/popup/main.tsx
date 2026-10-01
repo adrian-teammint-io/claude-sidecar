@@ -37,7 +37,7 @@ function Popup() {
     }
     chrome.storage.onChanged.addListener(onChange)
     refresh()
-    const tick = setInterval(() => setNow(Date.now()), 30_000) // keeps "resets in" / "updated" fresh
+    const tick = setInterval(() => setNow(Date.now()), 30_000) // keeps "updated" fresh
     return () => { chrome.storage.onChanged.removeListener(onChange); clearInterval(tick) }
   }, [])
 
@@ -74,8 +74,8 @@ function Popup() {
       )}
 
       <section className="p-cards">
-        {u?.five_hour ? <RingCard kind="session" limit={u.five_hour} now={now} /> : <Skeleton />}
-        {u?.seven_day ? <RingCard kind="weekly" limit={u.seven_day} now={now} /> : <Skeleton />}
+        {u?.five_hour ? <RingCard kind="session" limit={u.five_hour} /> : <Skeleton />}
+        {u?.seven_day ? <RingCard kind="weekly" limit={u.seven_day} /> : <Skeleton />}
       </section>
       {u && <BreakdownCard usage={u} />}
 

@@ -1,15 +1,16 @@
-import { levelColor, untilText, type Limit, type Usage } from '../usage-format'
+import { levelColor, type Limit, type Usage } from '../usage-format'
 
 const R = 56
 const C = 2 * Math.PI * R
 
 const weekdayTime = (iso: string) => new Date(iso).toLocaleString([], { weekday: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })
+const clockTime = (iso: string) => new Date(iso).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
 
 // One ring gauge card. `kind` only changes the label and how the reset time reads.
-export function RingCard({ kind, limit, now }: { kind: 'session' | 'weekly'; limit: NonNullable<Limit>; now: number }) {
+export function RingCard({ kind, limit }: { kind: 'session' | 'weekly'; limit: NonNullable<Limit> }) {
   const pct = Math.min(100, Math.max(0, limit.utilization))
   const reset = !limit.resets_at ? 'Not started'
-    : kind === 'session' ? `Resets in ${untilText(limit.resets_at, now)}` : `Resets ${weekdayTime(limit.resets_at)}`
+    : kind === 'session' ? `Resets at ${clockTime(limit.resets_at)}` : `Resets ${weekdayTime(limit.resets_at)}`
   return (
     <article className="card ring-card" style={{ '--level': levelColor(pct) } as React.CSSProperties}>
       <div className="ring">
